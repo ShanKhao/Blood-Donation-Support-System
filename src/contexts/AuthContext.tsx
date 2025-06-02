@@ -1,9 +1,46 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService, LoginRequest, RegisterRequest, AuthResponse, AuthError } from '@/services/auth.service';
 import { userService, User } from '@/services/user.service';
 import { useToast } from '@/hooks/use-toast';
 import { loginSchema, registerSchema } from '@/lib/validations';
+import axiosInstance from '@/lib/axios';
+import { API_ENDPOINTS } from '@/services/api.config';
+
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phoneNumber: string;
+  district: string;
+  city: string;
+  address: string;
+  bloodType: string;
+  role: string;
+}
+
+interface ApiError {
+  message: string;
+  status: number;
+}
+
+interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  error?: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -28,7 +65,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      if (authService.isAuthenticated()) {
+      const token = localStorage.getItem('token');
+      if (token) {
         const userData = await userService.getCurrentUser();
         setUser(userData);
       }
@@ -45,28 +83,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Validate input data
       await loginSchema.parseAsync(credentials);
 
-      const authResponse = await authService.login(credentials);
-      const userData = await userService.getCurrentUser();
+      const response = await axiosInstance.post<ApiResponse<AuthResponse>>(API_ENDPOINTS.LOGIN, credentials);
+      const { token, user: userData } = response.data.data;
+
+      if (!token || !userData) {
+        throw new Error('Invalid response from server');
+      }
+
+      localStorage.setItem('token', token);
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
+
       toast({
         title: "Success",
         description: "Logged in successfully",
       });
       navigate('/');
     } catch (error) {
-      if (error instanceof AuthError) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-      }
+      const axiosError = error as Error & { response?: { data: ApiError } };
+      toast({
+        title: "Error",
+        description: axiosError.response?.data?.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
       throw error;
     }
   };
@@ -76,46 +115,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Validate input data
       await registerSchema.parseAsync(data);
 
-      const authResponse = await authService.register(data);
-      const userData = await userService.getCurrentUser();
+      const response = await axiosInstance.post<ApiResponse<AuthResponse>>(API_ENDPOINTS.REGISTER, data);
+      const { token, user: userData } = response.data.data;
+
+      if (!token || !userData) {
+        throw new Error('Invalid response from server');
+      }
+
+      localStorage.setItem('token', token);
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
+
       toast({
         title: "Success",
         description: "Registration successful",
       });
       navigate('/');
     } catch (error) {
-      if (error instanceof AuthError) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-      }
+      const axiosError = error as Error & { response?: { data: ApiError } };
+      toast({
+        title: "Error",
+        description: axiosError.response?.data?.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
       throw error;
     }
   };
 
   const logout = async () => {
     try {
-      await authService.revokeToken();
+      await axiosInstance.post(API_ENDPOINTS.REVOKE_TOKEN);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      localStorage.removeItem('token');
+      delete axiosInstance.defaults.headers.common['Authorization'];
       setUser(null);
       navigate('/login');
       toast({
         title: "Success",
         description: "Logged out successfully",
       });
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // Still clear user state even if server call fails
-      setUser(null);
-      navigate('/login');
     }
   };
 

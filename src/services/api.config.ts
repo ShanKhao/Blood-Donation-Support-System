@@ -1,4 +1,6 @@
-export const API_BASE_URL = 'https://localhost:44396';
+import { API_BASE_URL as ENV_API_BASE_URL } from '@/config/api';
+
+export const API_BASE_URL = ENV_API_BASE_URL;
 
 export const API_ENDPOINTS = {
   // Auth endpoints

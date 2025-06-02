@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,9 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, User, Mail, Phone, MapPin, Lock, Building2, MapPinned, Hash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Register = () => {
   const { toast } = useToast();
+  const { register } = useAuth();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -18,17 +22,17 @@ const Register = () => {
     bloodType: "",
     address: "",
     city: "",
-    state: "",
-    zipCode: "",
+    district: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    role: "DONOR" // Default role
   });
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       toast({
@@ -38,10 +42,25 @@ const Register = () => {
       });
       return;
     }
-    toast({
-      title: "Registration Successful!",
-      description: "Welcome to the Blood Care community",
-    });
+
+    setIsLoading(true);
+    try {
+      await register(formData);
+      toast({
+        title: "Registration Successful!",
+        description: "Welcome to the Blood Care community",
+      });
+      navigate('/');
+    } catch (error: any) {
+      console.error('Registration failed:', error);
+      toast({
+        title: "Registration Failed",
+        description: error.message || "An error occurred during registration",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -186,24 +205,12 @@ const Register = () => {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <MapPinned className="h-4 w-4 text-red-500" />
-                    <Label htmlFor="state">State</Label>
+                    <Label htmlFor="district">District</Label>
                   </div>
                   <Input
-                    id="state"
-                    value={formData.state}
-                    onChange={(e) => handleInputChange("state", e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Hash className="h-4 w-4 text-red-500" />
-                    <Label htmlFor="zipCode">Zip Code</Label>
-                  </div>
-                  <Input
-                    id="zipCode"
-                    value={formData.zipCode}
-                    onChange={(e) => handleInputChange("zipCode", e.target.value)}
+                    id="district"
+                    value={formData.district}
+                    onChange={(e) => handleInputChange("district", e.target.value)}
                     required
                   />
                 </div>
@@ -241,8 +248,9 @@ const Register = () => {
               <Button 
                 type="submit" 
                 className="w-full bg-red-500 hover:bg-red-600 text-white py-3 text-lg font-semibold"
+                disabled={isLoading}
               >
-                Create Account
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
 
               <p className="text-center text-sm text-gray-600">

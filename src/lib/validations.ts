@@ -13,6 +13,8 @@ export const registerSchema = z.object({
   confirmPassword: z.string(),
   phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number"),
   district: z.string().min(2, "District is required"),
+  city: z.string().min(2, "City is required"),
+  address: z.string().min(5, "Address is required"),
   bloodType: z.enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"], {
     errorMap: () => ({ message: "Please select a valid blood type" }),
   }),

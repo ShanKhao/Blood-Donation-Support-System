@@ -20,8 +20,8 @@ const Index = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/" className="text-gray-700 hover:text-red-500 transition-colors">Home</Link>
               <Link to="/blog" className="text-gray-700 hover:text-red-500 transition-colors">Blog</Link>
-              <a href="#" className="text-gray-700 hover:text-red-500 transition-colors">About Us</a>
-              <a href="#" className="text-gray-700 hover:text-red-500 transition-colors">Blood Request</a>
+              <Link to="/about" className="text-gray-700 hover:text-red-500 transition-colors">About Us</Link>
+              <Link to="/blood-request" className="text-gray-700 hover:text-red-500 transition-colors">Blood Request</Link>
               {!isAuthenticated ? (
                 <>
                   <Link to="/register" className="text-gray-700 hover:text-red-500 transition-colors">Register Now</Link>

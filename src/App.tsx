@@ -11,6 +11,10 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import Blog from "./pages/Blog";
+import AboutUs from "./pages/AboutUs";
+import BloodRequest from "./pages/BloodRequest";
+import Staff from "./pages/Staff";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +29,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/blood-request" element={<BloodRequest />} />
             <Route
               path="/profile"
               element={
@@ -34,6 +40,22 @@ const App = () => (
               }
             />
             <Route path="/blog" element={<Blog />} />
+            <Route
+              path="/staff"
+              element={
+                <ProtectedRoute allowedRoles={["staff", "admin"]}>
+                  <Staff />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

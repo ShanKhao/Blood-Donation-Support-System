@@ -6,9 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Mail, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const { toast } = useToast();
+  const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -18,12 +21,17 @@ const Login = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Login Successful!",
-      description: "Welcome back to Blood Care",
-    });
+    setIsLoading(true);
+    
+    try {
+      await login(formData);
+    } catch (error) {
+      console.error('Login failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -74,6 +82,7 @@ const Login = () => {
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -89,6 +98,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -97,16 +107,19 @@ const Login = () => {
                   <input type="checkbox" className="rounded border-gray-300 text-red-500 focus:ring-red-500" />
                   <span className="ml-2 text-sm text-gray-600">Remember me</span>
                 </label>
-                <a href="#" className="text-sm text-red-500 hover:text-red-600">
-                  Forgot password?
-                </a>
+                <div className="text-center mt-4">
+                  <Link to="/forgot-password" className="text-sm text-red-500 hover:text-red-600">
+                    Forgot your password?
+                  </Link>
+                </div>
               </div>
 
               <Button 
                 type="submit" 
                 className="w-full bg-red-500 hover:bg-red-600 text-white py-3 text-lg font-semibold"
+                disabled={isLoading}
               >
-                Login
+                {isLoading ? "Signing in..." : "Login"}
               </Button>
 
               <p className="text-center text-sm text-gray-600">

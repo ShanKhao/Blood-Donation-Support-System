@@ -15,6 +15,8 @@ export interface User {
   email: string;
   phoneNumber: string;
   district: string;
+  city: string;
+  address: string;
   bloodType: string;
   role: string;
 }
@@ -24,6 +26,8 @@ export interface UpdateUserRequest {
   lastName?: string;
   phoneNumber?: string;
   district?: string;
+  city?: string;
+  address?: string;
   bloodType?: string;
 }
 

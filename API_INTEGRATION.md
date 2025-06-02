@@ -1,367 +1,326 @@
- # Blood Care API Integration Guide
+# API Integration Documentation
 
-## Table of Contents
-1. [Overview](#overview)
-2. [API Integration Setup](#api-integration-setup)
-3. [Authentication](#authentication)
-4. [State Management](#state-management)
-5. [API Service Implementation](#api-service-implementation)
-6. [Error Handling](#error-handling)
-7. [Example Usage](#example-usage)
+This document provides detailed information about the Blood Donation Management System's API integration.
 
-## Overview
+## Base URL
 
-This document provides guidance on integrating the Blood Care frontend application with your group's Swagger API. The frontend is built using React with TypeScript and uses modern tools and libraries for optimal performance and developer experience.
-
-### Tech Stack
-- React 18+
-- TypeScript
-- Vite
-- TanStack Query (React Query)
-- Axios
-- Shadcn/ui Components
-- Tailwind CSS
-
-## API Integration Setup
-
-1. First, create an API configuration file:
-
-```typescript
-// src/config/api.ts
-export const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://your-api-url';
-export const API_TIMEOUT = 30000; // 30 seconds
-```
-
-2. Create an Axios instance with default configuration:
-
-```typescript
-// src/lib/axios.ts
-import axios from 'axios';
-import { API_BASE_URL, API_TIMEOUT } from '@/config/api';
-
-const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: API_TIMEOUT,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Add request interceptor for authentication
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Add response interceptor for error handling
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
-export default axiosInstance;
-```
+- Development: `http://localhost:3000/api`
+- Production: `[production-url]/api`
 
 ## Authentication
 
-1. Create authentication service:
+All API endpoints except `/auth/login` and `/auth/register` require authentication using JWT tokens.
+
+### Authentication Headers
 
 ```typescript
-// src/services/auth.service.ts
-import axios from '@/lib/axios';
-
-export interface LoginCredentials {
-  email: string;
-  password: string;
+headers: {
+  'Authorization': 'Bearer <your-jwt-token>',
+  'Content-Type': 'application/json'
 }
-
-export interface RegisterData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  phone: string;
-  bloodType: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-}
-
-export const authService = {
-  async login(credentials: LoginCredentials) {
-    const response = await axios.post('/auth/login', credentials);
-    return response.data;
-  },
-
-  async register(data: RegisterData) {
-    const response = await axios.post('/auth/register', data);
-    return response.data;
-  },
-
-  async logout() {
-    const response = await axios.post('/auth/logout');
-    return response.data;
-  },
-
-  async getCurrentUser() {
-    const response = await axios.get('/auth/me');
-    return response.data;
-  },
-};
 ```
 
-## State Management
+## API Endpoints
 
-1. Create authentication context:
+### Authentication
 
+#### Register User
 ```typescript
-// src/contexts/AuthContext.tsx
-import { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '@/services/auth.service';
+POST /auth/register
+Content-Type: application/json
 
-interface AuthContextType {
-  user: any | null;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => Promise<void>;
-  isLoading: boolean;
+{
+  "email": string,
+  "password": string,
+  "name": string,
+  "role": "donor" | "staff" | "admin",
+  "phoneNumber": string,
+  "address": string,
+  "bloodType": string
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+Response: {
+  "user": {
+    "id": string,
+    "email": string,
+    "name": string,
+    "role": string
+  },
+  "token": string
+}
+```
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+#### Login
+```typescript
+POST /auth/login
+Content-Type: application/json
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const user = await authService.getCurrentUser();
-      setUser(user);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = async (credentials: LoginCredentials) => {
-    const response = await authService.login(credentials);
-    localStorage.setItem('token', response.token);
-    setUser(response.user);
-  };
-
-  const logout = async () => {
-    await authService.logout();
-    localStorage.removeItem('token');
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
-      {children}
-    </AuthContext.Provider>
-  );
+{
+  "email": string,
+  "password": string
 }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+Response: {
+  "user": {
+    "id": string,
+    "email": string,
+    "name": string,
+    "role": string
+  },
+  "token": string
+}
+```
+
+#### Get Profile
+```typescript
+GET /auth/profile
+Authorization: Bearer <token>
+
+Response: {
+  "user": {
+    "id": string,
+    "email": string,
+    "name": string,
+    "role": string,
+    "phoneNumber": string,
+    "address": string,
+    "bloodType": string,
+    "lastDonation": string | null
   }
-  return context;
-};
+}
 ```
 
-## API Service Implementation
+### User Management (Admin Only)
 
-Create services for different features:
-
+#### Get All Users
 ```typescript
-// src/services/profile.service.ts
-import axios from '@/lib/axios';
+GET /admin/users
+Authorization: Bearer <token>
+Query Parameters:
+  - page: number (optional)
+  - role: "admin" | "staff" | "donor" (optional)
+  - search: string (optional)
 
-export const profileService = {
-  async updateProfile(data: any) {
-    const response = await axios.put('/profile', data);
-    return response.data;
-  },
+Response: {
+  "data": {
+    "items": User[],
+    "total": number,
+    "page": number,
+    "limit": number
+  }
+}
+```
 
-  async getDonationHistory() {
-    const response = await axios.get('/profile/donations');
-    return response.data;
-  },
-};
+#### Update User
+```typescript
+PUT /admin/users/:id
+Authorization: Bearer <token>
+Content-Type: application/json
 
-// src/services/blog.service.ts
-import axios from '@/lib/axios';
+{
+  "name"?: string,
+  "email"?: string,
+  "role"?: "admin" | "staff" | "donor",
+  "phoneNumber"?: string,
+  "address"?: string,
+  "bloodType"?: string
+}
 
-export const blogService = {
-  async getPosts(page = 1, limit = 10) {
-    const response = await axios.get('/blog', { params: { page, limit } });
-    return response.data;
-  },
+Response: {
+  "data": User
+}
+```
 
-  async getPost(id: string) {
-    const response = await axios.get(`/blog/${id}`);
-    return response.data;
-  },
-};
+#### Delete User
+```typescript
+DELETE /admin/users/:id
+Authorization: Bearer <token>
+
+Response: {
+  "success": true
+}
+```
+
+### System Logs (Admin Only)
+
+#### Get System Logs
+```typescript
+GET /admin/logs
+Authorization: Bearer <token>
+Query Parameters:
+  - page: number (optional)
+  - type: string (optional)
+
+Response: {
+  "data": {
+    "items": SystemLog[],
+    "total": number,
+    "page": number,
+    "limit": number
+  }
+}
+```
+
+### Blood Requests
+
+#### Create Blood Request
+```typescript
+POST /blood-requests
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "bloodType": string,
+  "units": number,
+  "urgency": "low" | "medium" | "high",
+  "hospital": string,
+  "reason": string,
+  "requiredBy": string (ISO date)
+}
+
+Response: {
+  "data": BloodRequest
+}
+```
+
+#### Get Blood Requests
+```typescript
+GET /blood-requests
+Authorization: Bearer <token>
+Query Parameters:
+  - status: "pending" | "fulfilled" | "cancelled" (optional)
+  - bloodType: string (optional)
+  - page: number (optional)
+
+Response: {
+  "data": {
+    "items": BloodRequest[],
+    "total": number,
+    "page": number,
+    "limit": number
+  }
+}
+```
+
+## Type Definitions
+
+### User
+```typescript
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: "admin" | "staff" | "donor";
+  phoneNumber: string;
+  address: string;
+  bloodType: string;
+  lastDonation: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### BloodRequest
+```typescript
+interface BloodRequest {
+  id: string;
+  bloodType: string;
+  units: number;
+  urgency: "low" | "medium" | "high";
+  status: "pending" | "fulfilled" | "cancelled";
+  hospital: string;
+  reason: string;
+  requiredBy: string;
+  requestedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### SystemLog
+```typescript
+interface SystemLog {
+  id: string;
+  type: string;
+  message: string;
+  userId: string | null;
+  metadata: Record<string, any>;
+  timestamp: string;
+}
 ```
 
 ## Error Handling
 
-Create a custom error handling utility:
+The API uses standard HTTP status codes and returns error responses in the following format:
 
 ```typescript
-// src/utils/error-handler.ts
-import { toast } from '@/components/ui/use-toast';
-
-export const handleError = (error: any) => {
-  const message = error.response?.data?.message || 'An error occurred';
-  toast({
-    title: 'Error',
-    description: message,
-    variant: 'destructive',
-  });
-};
+{
+  "error": string,
+  "message": string,
+  "details"?: any
+}
 ```
 
-## Example Usage
+Common status codes:
+- 200: Success
+- 201: Created
+- 400: Bad Request
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Not Found
+- 500: Internal Server Error
 
-Here's how to use the API services in your components:
+## Rate Limiting
+
+The API implements rate limiting to prevent abuse:
+- 100 requests per minute for authenticated users
+- 20 requests per minute for unauthenticated users
+
+## Best Practices
+
+1. Always handle API errors appropriately in your frontend code
+2. Implement token refresh logic for long-running sessions
+3. Cache responses when appropriate using React Query
+4. Validate request data before sending
+5. Use appropriate error boundaries in React components
+6. Implement proper loading states for API calls
+
+## Example Usage with React Query
 
 ```typescript
-// src/pages/Login.tsx
-import { useAuth } from '@/contexts/AuthContext';
-import { handleError } from '@/utils/error-handler';
-
-const Login = () => {
-  const { login } = useAuth();
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await login({
-        email: formData.email,
-        password: formData.password,
-      });
-      // Redirect or show success message
-    } catch (error) {
-      handleError(error);
-    }
-  };
-  
-  // Rest of the component...
-};
-
-// src/pages/Profile.tsx
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { profileService } from '@/services/profile.service';
+import { api } from '@/services/api';
 
-const Profile = () => {
-  const { data: donationHistory } = useQuery({
-    queryKey: ['donationHistory'],
-    queryFn: () => profileService.getDonationHistory(),
+// Fetching blood requests
+const useBloodRequests = (params?: BloodRequestParams) => {
+  return useQuery({
+    queryKey: ['bloodRequests', params],
+    queryFn: () => api.get('/blood-requests', { params })
   });
+};
 
-  const updateProfileMutation = useMutation({
-    mutationFn: (data: any) => profileService.updateProfile(data),
-    onSuccess: () => {
-      toast({
-        title: 'Success',
-        description: 'Profile updated successfully',
-      });
-    },
-    onError: handleError,
+// Creating a blood request
+const useCreateBloodRequest = () => {
+  return useMutation({
+    mutationFn: (data: CreateBloodRequestData) => 
+      api.post('/blood-requests', data)
   });
-
-  // Rest of the component...
 };
 ```
 
-## Environment Setup
+## Security Considerations
 
-Create a `.env` file in the root directory:
+1. Never store JWT tokens in localStorage (use secure HTTP-only cookies in production)
+2. Implement proper CORS policies
+3. Validate all user input
+4. Use HTTPS in production
+5. Implement proper password hashing
+6. Regular security audits
+7. Keep dependencies updated
 
-```env
-VITE_API_BASE_URL=http://your-api-url
-```
+## Support
 
-## Getting Started
-
-1. Install dependencies:
-```bash
-npm install axios @tanstack/react-query
-```
-
-2. Update your `main.tsx` to include providers:
-
-```typescript
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/contexts/AuthContext';
-
-const queryClient = new QueryClient();
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
-);
-```
-
-3. Protect routes that require authentication:
-
-```typescript
-// src/components/ProtectedRoute.tsx
-import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
-
-export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  return <>{children}</>;
-};
-
-// Use in App.tsx
-<Route
-  path="/profile"
-  element={
-    <ProtectedRoute>
-      <Profile />
-    </ProtectedRoute>
-  }
-/>
-```
-
-This documentation provides a foundation for integrating your frontend with the Swagger API. Adjust the endpoints and data structures according to your specific API documentation.
+For API-related issues or questions:
+1. Check the API documentation at `/api-docs`
+2. Open an issue in the repository
+3. Contact the development team

@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Calendar, User, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 
 const blogPosts = [
   {
@@ -34,9 +36,41 @@ const blogPosts = [
 ];
 
 export default function Blog() {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50">
+      {/* Navigation */}
+      <nav className="bg-white/80 backdrop-blur-sm shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-2">
+              <Heart className="h-8 w-8 text-red-500" />
+              <span className="text-2xl font-bold text-gray-800">Blood Care</span>
+            </div>
+            <div className="hidden md:flex items-center space-x-8">
+              <Link to="/" className="text-gray-700 hover:text-red-500 transition-colors">Home</Link>
+              <Link to="/blog" className="text-gray-700 hover:text-red-500 transition-colors">Blog</Link>
+              <Link to="/about" className="text-gray-700 hover:text-red-500 transition-colors">About Us</Link>
+              <Link to="/blood-request" className="text-gray-700 hover:text-red-500 transition-colors">Blood Request</Link>
+              {!isAuthenticated ? (
+                <>
+                  <Link to="/register" className="text-gray-700 hover:text-red-500 transition-colors">Register Now</Link>
+                  <Link to="/login">
+                    <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white">
+                      Login
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <UserProfileDropdown />
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-6xl mx-auto py-12 px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Blood Care Blog</h1>
           <p className="text-lg text-muted-foreground">
@@ -46,7 +80,7 @@ export default function Blog() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {blogPosts.map((post) => (
-            <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
               <div className="aspect-video relative overflow-hidden">
                 <img
                   src={post.image}
@@ -54,7 +88,7 @@ export default function Blog() {
                   className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <CardHeader>
+              <CardHeader className="flex-grow">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                   <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
@@ -70,7 +104,7 @@ export default function Blog() {
                   {post.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <Button variant="outline" className="w-full group">
                   Read More
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
