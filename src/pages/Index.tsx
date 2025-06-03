@@ -1,9 +1,12 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, MapPin, Phone, Mail, Clock } from "lucide-react";
+import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50">
       {/* Navigation */}
@@ -15,15 +18,22 @@ const Index = () => {
               <span className="text-2xl font-bold text-gray-800">Blood Care</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-gray-700 hover:text-red-500 transition-colors">Home</a>
+              <Link to="/" className="text-gray-700 hover:text-red-500 transition-colors">Home</Link>
+              <Link to="/blog" className="text-gray-700 hover:text-red-500 transition-colors">Blog</Link>
               <a href="#" className="text-gray-700 hover:text-red-500 transition-colors">About Us</a>
               <a href="#" className="text-gray-700 hover:text-red-500 transition-colors">Blood Request</a>
-              <a href="#" className="text-gray-700 hover:text-red-500 transition-colors">Register Now</a>
-              <Link to="/login">
-                <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white">
-                  Login
-                </Button>
-              </Link>
+              {!isAuthenticated ? (
+                <>
+                  <Link to="/register" className="text-gray-700 hover:text-red-500 transition-colors">Register Now</Link>
+                  <Link to="/login">
+                    <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white">
+                      Login
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <UserProfileDropdown />
+              )}
             </div>
           </div>
         </div>

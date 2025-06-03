@@ -1,73 +1,48 @@
-# Welcome to your Lovable project
+# Welcome to your Blood Care Project
 
-## Project info
+## Overview
+This is a blood donation management system built with React and TypeScript.
 
-**URL**: https://lovable.dev/projects/ebd1861b-4318-4b20-84f3-479fc29d5e74
+## Development
 
-## How can I edit this code?
+### Local Development
+1. Clone this repository
+2. Install dependencies with `npm install`
+3. Run the development server with `npm run dev`
+4. Make your changes and push them to the repository
 
-There are several ways of editing your application.
+### Building for Production
+1. Run `npm run build` to create a production build
+2. Use `npm run preview` to preview the production build locally
 
-**Use Lovable**
+## Features
+- Modern React with TypeScript
+- Beautiful UI with Tailwind CSS
+- Component-driven development
+- Responsive design
+- User authentication
+- Blood donation management
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ebd1861b-4318-4b20-84f3-479fc29d5e74) and start prompting.
+## Project Structure
+- `/src` - Source code
+  - `/components` - Reusable UI components
+  - `/pages` - Page components
+  - `/lib` - Utility functions and helpers
+  - `/hooks` - Custom React hooks
 
-Changes made via Lovable will be committed automatically to this repo.
+## Contributing
+1. Create a new branch for your feature
+2. Make your changes
+3. Submit a pull request
 
-**Use your preferred IDE**
+## Deployment
+The project can be deployed to any static hosting service that supports Node.js applications.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Custom Domain
+You can connect a custom domain to your deployed project. Follow these steps:
+1. Configure your DNS settings
+2. Add the domain in your hosting provider
+3. Update SSL certificates if needed
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/ebd1861b-4318-4b20-84f3-479fc29d5e74) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## License
+This project is licensed under the MIT License.

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart } from "lucide-react";
+import { Heart, User, Mail, Phone, MapPin, Lock, Building2, MapPinned, Hash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Register = () => {
@@ -81,7 +80,10 @@ const Register = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="firstName">First Name</Label>
+                  </div>
                   <Input
                     id="firstName"
                     value={formData.firstName}
@@ -90,7 +92,10 @@ const Register = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="lastName">Last Name</Label>
+                  </div>
                   <Input
                     id="lastName"
                     value={formData.lastName}
@@ -102,7 +107,10 @@ const Register = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Mail className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="email">Email</Label>
+                  </div>
                   <Input
                     id="email"
                     type="email"
@@ -112,7 +120,10 @@ const Register = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Phone className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="phone">Phone Number</Label>
+                  </div>
                   <Input
                     id="phone"
                     value={formData.phone}
@@ -124,7 +135,10 @@ const Register = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="bloodType">Blood Type</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Heart className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="bloodType">Blood Type</Label>
+                  </div>
                   <Select onValueChange={(value) => handleInputChange("bloodType", value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select blood type" />
@@ -142,7 +156,10 @@ const Register = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="city">City</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Building2 className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="city">City</Label>
+                  </div>
                   <Input
                     id="city"
                     value={formData.city}
@@ -153,7 +170,10 @@ const Register = () => {
               </div>
 
               <div>
-                <Label htmlFor="address">Address</Label>
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-4 w-4 text-red-500" />
+                  <Label htmlFor="address">Address</Label>
+                </div>
                 <Input
                   id="address"
                   value={formData.address}
@@ -164,7 +184,10 @@ const Register = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="state">State</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPinned className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="state">State</Label>
+                  </div>
                   <Input
                     id="state"
                     value={formData.state}
@@ -173,7 +196,10 @@ const Register = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="zipCode">Zip Code</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Hash className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="zipCode">Zip Code</Label>
+                  </div>
                   <Input
                     id="zipCode"
                     value={formData.zipCode}
@@ -185,7 +211,10 @@ const Register = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="password">Password</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Lock className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="password">Password</Label>
+                  </div>
                   <Input
                     id="password"
                     type="password"
@@ -195,7 +224,10 @@ const Register = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Lock className="h-4 w-4 text-red-500" />
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  </div>
                   <Input
                     id="confirmPassword"
                     type="password"

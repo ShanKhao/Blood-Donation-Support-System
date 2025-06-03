@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart } from "lucide-react";
+import { Heart, Mail, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
@@ -64,7 +63,10 @@ const Login = () => {
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <div className="flex items-center gap-2 mb-2">
+                  <Mail className="h-4 w-4 text-red-500" />
+                  <Label htmlFor="email">Email</Label>
+                </div>
                 <Input
                   id="email"
                   type="email"
@@ -72,12 +74,14 @@ const Login = () => {
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   required
-                  className="mt-1"
                 />
               </div>
 
               <div>
-                <Label htmlFor="password">Password</Label>
+                <div className="flex items-center gap-2 mb-2">
+                  <Lock className="h-4 w-4 text-red-500" />
+                  <Label htmlFor="password">Password</Label>
+                </div>
                 <Input
                   id="password"
                   type="password"
@@ -85,7 +89,6 @@ const Login = () => {
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
                   required
-                  className="mt-1"
                 />
               </div>
 
