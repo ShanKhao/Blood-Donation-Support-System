@@ -1,4 +1,4 @@
-# Blood Donation Management System (Frontend)
+# Blood Donation Management System
 
 A frontend application for a blood donation management system, built with React and TypeScript.
 
