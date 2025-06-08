@@ -7,17 +7,13 @@ export default defineConfig({
   server: {
     host: "localhost",
     port: 44396,
-    https: {
-      key: undefined,
-      cert: undefined,
-    },
     strictPort: true,
     cors: {
       origin: true,
     },
     proxy: {
       '/api': {
-        target: 'https://localhost:44396',
+        target: 'http://localhost:44396',
         changeOrigin: true,
         secure: false,
       }
